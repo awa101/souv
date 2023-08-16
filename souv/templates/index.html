@@ -44,7 +44,7 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.g
     L.geoJSON(data, {
         style: function(feature) {
             var countryName = feature.properties.name;
-            var specialCountries = ["Russia", "China", "Japan"]; // 원하는 나라들의 이름을 배열로 정의
+            var specialCountries = ["Germany", "Japan"]; // 원하는 나라들의 이름을 배열로 정의
 
             if (specialCountries.includes(countryName)) {
                 return {
@@ -88,7 +88,7 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.g
             });
             
             layer.on('click', function() {
-                window.location.href = '/country/' + countryName;
+                window.location.href = countryName;
             });
         }
     }).addTo(map);

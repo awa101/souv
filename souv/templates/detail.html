@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>detail</h1>
+    {{ country_name }}
+
+    <div>
+    {% for gift in gifts %}
+        <div>
+            <img src="{{ gift.image.url }}" alt="{{ gift.name }}">
+            <p>이름: {{ gift.name }}</p>
+            <p>정보: {{ gift.info }}</p>
+        </div>
+    {% endfor %}
+    </div>
+</body>
+</html>
