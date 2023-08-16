@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>World Map with GeoJSON</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        /* 나라 이름을 표시할 스타일 추가 */
+        .country-name {
+            position: absolute;
+            padding: 5px 10px;
+            background-color: None;
+            border-radius: 8px;
+            font-weight: bold;
+            visibility: hidden;
+            pointer-events: none; /* 클릭 이벤트가 아래의 요소로 통과 */
+            z-index: 1000; /* z-index 값을 높게 설정하여 맵 위에 표시되도록 함 */
+        }
+    </style>
+</head>
+<body>
+
+<div id="map" style="width: 800px; height: 600px;"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+var map = L.map('map', {
+    maxBounds: [[-60, -180], [85, 180]], // 대서양을 가운데로 하는 경도 및 위도 범위
+}).setView([0, 0], 2); 
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);  // Add base layer
+
+
+// 나라 이름을 표시할 HTML 엘리먼트 생성
+var countryNameElement = document.createElement('div');
+countryNameElement.className = 'country-name';
+document.body.appendChild(countryNameElement);
+
+
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')  // Load your GeoJSON file
+.then(response => response.json())
+.then(data => {
+    L.geoJSON(data, {
+        style: function(feature) {
+            var countryName = feature.properties.name;
+            var specialCountries = ["Russia", "China", "Japan"]; // 원하는 나라들의 이름을 배열로 정의
+
+            if (specialCountries.includes(countryName)) {
+                return {
+                    color: 'black',   // 특정 나라의 경계 색상
+                    weight: 1,      // 경계의 두께
+                    fillColor: 'orange',    // 특정 나라의 내부 색상
+                    fillOpacity: 0.3    // 특정 나라의 내부 색상
+                };
+            } else {
+                return {
+                    color: '#006400',
+                    weight: 1,
+                    fillColor: '#32CD32',
+                    fillOpacity: 0.1
+                };
+            }
+        },
+        onEachFeature: function (feature, layer) {
+            var countryName = feature.properties.name;
+
+            layer.on('mouseover', function(event) {
+                var centerLatLng;
+
+                if (countryName === "Russia") {
+                    // 러시아의 대략적인 중심 좌표를 직접 지정
+                    centerLatLng = new L.LatLng(65, 100);
+                } else {
+                    centerLatLng = layer.getBounds().getCenter();
+                }
+
+                var point = map.latLngToContainerPoint(centerLatLng);
+                
+                countryNameElement.innerHTML = countryName;
+                countryNameElement.style.left = (point.x - countryNameElement.offsetWidth/2) + 'px';
+                countryNameElement.style.top = (point.y - countryNameElement.offsetHeight/2) + 'px';
+                countryNameElement.style.visibility = 'visible'; // 이름 표시
+            });
+
+            layer.on('mouseout', function() {
+                countryNameElement.style.visibility = 'hidden'; // 이름 숨기기
+            });
+            
+            layer.on('click', function() {
+                window.location.href = '/country/' + countryName;
+            });
+        }
+    }).addTo(map);
+});
+</script>
+
+</body>
+</html>
