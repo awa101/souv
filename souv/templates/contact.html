@@ -9,7 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Ogani | Template</title>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
 
@@ -88,19 +89,44 @@
     </div>
 
 
-    <!-- Header Section Begin -->
-    <header class="header">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="header__logo">
-                        <a href="./index.html"><img src="{% static 'img/logo.png' %}" alt=""></a>
-                    </div>
-                </div>
-            </div>
+    <!-- 네비바 -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Navbar</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
         </div>
-    </header>
-    <!-- Header Section End -->
+      </nav>
+      <!-- 네비바 끝-->
 
 
 
@@ -212,77 +238,55 @@
         var map = L.map('map', {
             maxBounds: [[-60, -180], [85, 180]],
         }).setView([0, 0], 2);
-
+    
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-        // 나라 이름을 표시할 HTML 엘리먼트 생성
+    
         var countryNameElement = document.createElement('div');
         countryNameElement.className = 'country-name';
         document.body.appendChild(countryNameElement);
-
-        var currentCountry = null;  // 현재 마우스 위치의 나라 이름 저장
-        
+    
+        var currentMousePoint = null;
+        var currentCountry = null;
+    
         function getScreenSize() {
             var width = window.innerWidth;
-
+    
             if (width >= 1200) return 'large';
             if (width >= 992) return 'medium-large';
             if (width >= 768) return 'medium';
             if (width >= 576) return 'small-medium';
             return 'small';
         }
-
-        map.on('mousemove', function(event) {
-            var mousePoint = event.layerPoint;
-            var screenSize = getScreenSize();
-            var width = window.innerWidth;
-
-            if (currentCountry) {
+    
+        function displayCountryName() {
+            if (currentCountry && currentMousePoint) {
+                var screenSize = getScreenSize();
                 var nameWidth = countryNameElement.offsetWidth;
                 var nameHeight = countryNameElement.offsetHeight;
-
-                var xPosition = mousePoint.x - 30;
-                var yPosition = mousePoint.y + 100;
-
-                switch(screenSize) {
-                    case 'large':
-                        xPosition = mousePoint.x - 30;
-                        yPosition = mousePoint.y + 100;
-                        break;
-                    case 'medium-large':
-                        xPosition = mousePoint.x - 30;
-                        yPosition = mousePoint.y + 100;
-                        break;
-                    case 'medium':
-                        xPosition = mousePoint.x - 30;
-                        yPosition = mousePoint.y + 100;
-                        break;
-                    case 'small-medium':
-                        xPosition = mousePoint.x - 30;
-                        yPosition = mousePoint.y + 100;
-                        break;
-                    case 'small':
-                        xPosition = mousePoint.x - 30;
-                        yPosition = mousePoint.y + 100;
-                        break;
-                }
-
+    
+                var xPosition = currentMousePoint.x - 30;
+                var yPosition = currentMousePoint.y + 100;
+    
                 if (xPosition + nameWidth > map.getSize().x) {
-                    xPosition = mousePoint.x - nameWidth - 15;
+                    xPosition = currentMousePoint.x - nameWidth - 15;
                 }
-
+    
                 if (yPosition < 0) {
-                    yPosition = mousePoint.y + 10;
+                    yPosition = currentMousePoint.y + 10;
                 }
-
+    
                 countryNameElement.innerHTML = currentCountry;
                 countryNameElement.style.left = xPosition + 'px';
                 countryNameElement.style.top = yPosition + 'px';
                 countryNameElement.style.visibility = 'visible';
             }
+        }
+    
+        map.on('mousemove', function(event) {
+            currentMousePoint = event.layerPoint;
+            displayCountryName();
         });
-
-
+    
         fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
         .then(response => response.json())
         .then(data => {
@@ -308,28 +312,32 @@
                 },
                 onEachFeature: function (feature, layer) {
                     var countryName = feature.properties.name;
-
+    
                     layer.on('mouseover', function(event) {
                         currentCountry = countryName;
+                        displayCountryName();
                     });
-
+    
                     layer.on('mouseout', function() {
                         currentCountry = null;
                         countryNameElement.style.visibility = 'hidden';
                     });
-
+    
                     layer.on('click', function() {
                         window.location.href = countryName;
                     });
                 }
             }).addTo(map);
         });
+    
         window.addEventListener('resize', function(){
-        setTimeout(function(){
-            map.invalidateSize();
-        }, 200);
-    });
+            setTimeout(function(){
+                map.invalidateSize();
+                displayCountryName();
+            }, 200);
+        });
     </script>
+    
 </body>
 
 </html>
