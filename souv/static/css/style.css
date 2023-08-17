@@ -1622,6 +1622,10 @@ ol {
 .product__pagination,
 .blog__pagination {
 	padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
 }
 
 .product__pagination a,
@@ -1653,6 +1657,9 @@ ol {
 .product__pagination a:last-child,
 .blog__pagination a:last-child {
 	margin-right: 0;
+	display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /*---------------------
